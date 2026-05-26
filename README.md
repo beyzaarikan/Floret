@@ -142,3 +142,8 @@ Run tests in order:
 ## Team
 Zeynep Ünver 
 Beyza Şefika Arıkan 
+
+
+<img width="1892" height="895" alt="Ekran görüntüsü 2026-05-27 004236" src="https://github.com/user-attachments/assets/0a3d0494-473a-418b-ae4d-6dfef51c4b9c" />
+<img width="888" height="852" alt="Ekran görüntüsü 2026-05-27 004252" src="https://github.com/user-attachments/assets/99bc1638-1701-4547-a0df-edbdb92d9017" />
+<img width="1129" height="907" alt="Ekran görüntüsü 2026-05-27 004315" src="https://github.com/user-attachments/assets/69728dd6-c546-40f5-bc39-fbd76be3f96f" />
