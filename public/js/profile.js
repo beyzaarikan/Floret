@@ -291,7 +291,7 @@ async function loadMyComments() {
         </div>
       </div>
       <div style="display:flex;gap:8px;margin-top:10px;align-items:center;flex-wrap:wrap">
-        <a href="index.html#post-${c.origin}" style="font-size:11px;color:#C084FC;text-decoration:none;flex:1" title="Zum Post gehen">
+        <a href="index.html?postId=${c.origin}" style="font-size:11px;color:#C084FC;text-decoration:none;flex:1" title="Zum Post gehen">
           📌 ${postSnippet}
         </a>
         <button class="btn-edit"   style="font-size:11px;padding:3px 10px" onclick="editProfComment(${c.commentId})">✏️</button>
