@@ -1,19 +1,23 @@
-# 🌸 Usermanager
+# 🌸 Floret
 
 A small social media web application built for the WebP2 course (IT1002, SoSe26) at THM Gießen. Users can register, post messages, comment on posts, and manage their profiles.
 
 ## Features
 
+- **Two-column layout** — sidebar with profile info, feed on the right
 - **Public feed** — view all posts and threaded comments without logging in
-- **User search** — search for users by name or username directly in the feed
+- **User search** — search for users by name or username directly in the sidebar
+- **Guest mode** — browse without an account via "Ohne Anmeldung weiterschauen"
 - **Authentication** — register, login, logout with session handling
-- **Posts** — create, edit, and delete your own posts
-- **Comments** — comment on posts with nested reply support
-- **Profile page** — edit your profile info and bio, view your posts and comments
-- **Public profiles** — view any user's profile and posts
-- **Password change** — change password with old password verification
+- **Posts** — create, edit, and delete your own posts with 120-character limit
+- **Comments** — comment on posts with nested reply support (Reddit-style threading)
+- **Profile page** — edit profile info and bio, view your own posts and comments with post count stats
+- **Public profiles** — view any user's profile and their posts by clicking their username
+- **Password change** — separate form with old password verification
 - **Relative timestamps** — "vor 2 Minuten", "vor 1 Stunde"
 - **Emoji reactions** — react to posts and comments with emojis
+- **Post highlight** — clicking a comment's post link scrolls to and highlights the post in the feed
+- **Deterministic avatar colors** — 8 colors assigned by username hash
 - **API documentation** — full ApiDoc available at `/apidoc/`
 
 ## Tech Stack
@@ -39,7 +43,7 @@ A small social media web application built for the WebP2 course (IT1002, SoSe26)
 ```bash
 # Clone the repository
 git clone <repo-url>
-cd usermanager
+cd Floret
 
 # Install dependencies
 npm install
@@ -64,8 +68,10 @@ Docs will be available at `http://localhost:3000/apidoc/`.
 ## Project Structure
 
 ```
-usermanager/
+Floret/
 ├── server.js
+├── apidoc.json
+├── tests.http
 ├── db/
 │   ├── connection.js
 │   └── usermanager.sql
@@ -116,9 +122,23 @@ usermanager/
 ## Database Schema
 
 ```sql
-User      (userId, firstname, lastname, username, email, password, bio)
-Post      (postId, text, creationDate, creator → User)
-Comment   (commentId, text, origin → Post, creator → User, parentId → Comment)
+User    (userId, firstname, lastname, username, email, password, bio)
+Post    (postId, text, creationDate, creator → User)
+Comment (commentId, text, origin → Post, creator → User, parentId → Comment)
 ```
 
 All foreign keys use `ON DELETE CASCADE`.
+
+## Testing
+
+HTTP test file included at `tests.http`. Open with VS Code REST Client extension.
+
+Run tests in order:
+1. Register a user
+2. Login — session is established
+3. Run authenticated routes (POST, PUT, DELETE)
+4. Test error cases (missing fields, wrong password, unauthorized access)
+
+## Team
+Zeynep Ünver 
+Beyza Şefika Arıkan 

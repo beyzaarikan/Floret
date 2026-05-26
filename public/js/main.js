@@ -47,13 +47,53 @@ async function handleRegister() {
 }
 
 function onLoginSuccess() {
+  // Navbar sadece kullanıcı adını göster
   document.getElementById('navbar-right').innerHTML = `
     <span style="font-size:13px;color:#7C3AED;font-weight:500">✦ ${currentUser.username}</span>
-    <a href="profile.html" class="btn-outline">Profil</a>
-    <button class="btn-primary" onclick="handleLogout()">Abmelden</button>
   `;
+
+  // Yeni post kutusu
   document.getElementById('new-post-box').style.display = 'flex';
-  document.getElementById('new-post-avatar').textContent = currentUser.username.slice(0,2).toUpperCase();
+
+  // Avatar — doğru renk ve initials
+  const avatarEl = document.getElementById('new-post-avatar');
+  avatarEl.textContent = currentUser.username.slice(0,2).toUpperCase();
+  avatarEl.className = `avatar ${avatarColor(currentUser.username)}`;
+
+  // Sidebar — guest gizle, profil göster
+  document.getElementById('sidebar-guest').style.display = 'none';
+  document.getElementById('sidebar-profile').style.display = 'flex';
+
+  // Sidebar avatar + username
+  const sidebarAvatar = document.getElementById('sidebar-avatar');
+  sidebarAvatar.textContent = currentUser.username.slice(0,2).toUpperCase();
+  sidebarAvatar.style.background = ``;
+  sidebarAvatar.className = `sidebar-avatar`;
+
+  document.getElementById('sidebar-username').textContent = currentUser.username;
+
+  // Sidebar bio + stats
+  loadSidebarInfo();
+}
+
+async function loadSidebarInfo() {
+  try {
+    const [userRes, postsRes, commentsRes] = await Promise.all([
+      fetch(`/api/users/${currentUser.userId}`),
+      fetch('/api/posts'),
+      fetch(`/api/users/mycomments/${currentUser.userId}`)
+    ]);
+    const user     = await userRes.json();
+    const posts    = await postsRes.json();
+    const comments = await commentsRes.json();
+
+    const bioEl = document.getElementById('sidebar-bio');
+    bioEl.textContent = user.bio && user.bio.trim() ? user.bio : '';
+
+    const myPosts = posts.filter(p => p.creator === currentUser.userId).length;
+    document.getElementById('stat-posts').textContent    = myPosts;
+    document.getElementById('stat-comments').textContent = comments.length;
+  } catch (_) {}
 }
 
 async function handleLogout() {
@@ -96,6 +136,23 @@ async function loadFeed() {
     }
 
     for (const post of posts) feed.appendChild(await createPostCard(post));
+
+    // ?postId=X varsa o posta git ve yorumları aç
+    const params = new URLSearchParams(window.location.search);
+    const targetId = params.get('postId');
+    if (targetId) {
+      const el = document.getElementById(`post-${targetId}`);
+      if (el) {
+        setTimeout(() => {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          el.style.boxShadow = '0 0 0 2px #C084FC';
+          setTimeout(() => el.style.boxShadow = '', 2000);
+          // yorumları aç
+          const section = document.getElementById(`comments-${targetId}`);
+          if (section) section.style.display = 'flex';
+        }, 300);
+      }
+    }
   } catch (_) {}
 }
 
@@ -152,7 +209,7 @@ async function createPostCard(post) {
   const commentsRes = await fetch(`/api/comments?postId=${post.postId}`);
   const comments    = await commentsRes.json();
   const isOwner     = currentUser && currentUser.userId === post.creator;
-  const avatarClass = ['avatar-purple','avatar-pink','avatar-yellow'][post.creator % 3];
+  const avatarClass = avatarColor(post.username);
   const initials    = post.username.slice(0,2).toUpperCase();
   const timeStr     = relativeTime(post.creationDate);
   const card        = document.createElement('div');
@@ -357,6 +414,20 @@ function escAttr(str) {
   return String(str).replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
+/* ── AVATAR COLOR ── */
+function avatarColor(username) {
+  const colors = [
+    'avatar-purple', 'avatar-pink',   'avatar-yellow',
+    'avatar-teal',   'avatar-blue',   'avatar-orange',
+    'avatar-green',  'avatar-rose'
+  ];
+  let hash = 0;
+  for (let i = 0; i < username.length; i++) {
+    hash = username.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return colors[Math.abs(hash) % colors.length];
+}
+
 /* ── CHARACTER COUNTER ── */
 function updateCharCount() {
   const textarea = document.getElementById('new-post-text');
@@ -364,7 +435,7 @@ function updateCharCount() {
   if (!textarea || !counter) return;
   const remaining = 120 - textarea.value.length;
   counter.textContent = `${remaining} Zeichen übrig`;
-  counter.style.color = remaining < 35 ? '#EF4444' : remaining < 80 ? '#F59E0B' : '#C4A8E0';
+  counter.style.color = remaining < 30 ? '#EF4444' : remaining < 80 ? '#F59E0B' : '#C4A8E0';
 }
 
 /* ── RELATIVE TIME ── */
